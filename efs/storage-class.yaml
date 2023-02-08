@@ -3,6 +3,7 @@ apiVersion: storage.k8s.io/v1
 metadata:
   name: eks-cube-test-efs
 provisioner: efs.csi.aws.com
+reclaimPolicy: Retain
 parameters:
   provisioningMode: efs-ap
   fileSystemId: fs-0397b0e4bbf3d0e19
