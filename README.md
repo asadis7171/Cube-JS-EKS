@@ -196,7 +196,7 @@ eks https://aws.github.io/eks-charts
 2. To install the TargetGroupBinding custom resource definitions (CRDs), run the
 following command:
 
-kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller/crds?ref=master"
+kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"
 -
 customresourcedefinition.apiextensions.k8s.io/ingressclassparams.elbv2.k8s.aws created
 customresourcedefinition.apiextensions.k8s.io/targetgroupbindings.elbv2.k8s.aws created
@@ -221,3 +221,21 @@ REVISION: 1
 TEST SUITE: None
 NOTES:
 AWS Load Balancer controller installed!
+
+
+
+
+// create role and add below service principle in it,  allow full admin access to the role
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "codebuild.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+        }
+    ]
+}
