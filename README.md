@@ -1,6 +1,6 @@
-# CubeJS Installation on AWS EKS 
+# CUBEJS DEPLOYMENT on AWS EKS CLUSTER
 
-### 1.  To install or update pre-requisits like eksctl kubctl on Linux machine.
+### 1.  INSTALL OR UPDATE EKSCTL ON LINUX.
 
 a. Download and extract the latest release of `eksctl` with the following command.
 
@@ -83,7 +83,7 @@ ip-192-168-52-244.ec2.internal Ready <none> 5m49s
 v1.24.9-eks-49d8fe8
 ```
 
-## 2. To create an IAM OIDC identity provider for your cluster with eksctl
+## 2. TO CREATE AN IAM OIDC IDENTITY PROVIDER FOR YOUR CLUSTER WITH EKSCTL
 
 
 2.1. Determine whether you have an existing IAM OIDC provider for your cluster.
@@ -111,10 +111,8 @@ aws iam list-open-id-connect-providers | grep $oidc_id | cut -d "/" -f4
 2EB6AC4AC3AD029AF7FA879A18FF5188”
 ```
 
+### 3. CREATE A SERVICE ACCOUNT POLICY, AND ROLE-BASED ACCESS CONTROL (RBAC) POLICIES
 
-### 3.  AWS Load Balancer Controller installation and testing using Helm
-
-`Create a service account policy, and role-based access control (RBAC) policies`
 
 1. To download an IAM policy that allows the AWS Load Balancer Controller to make
 calls to AWS APIs on your behalf, run the following command:
@@ -177,10 +175,19 @@ NAME SECRETS AGE
 aws-load-balancer-controller 0 26s
 ```
 
-### 4.  Install the AWS Load Balancer Controller using Helm
 
-1. check and install helm version.
+### 4.  INSTALL THE AWS LOAD BALANCER CONTROLLER USING HELM   
+
+( NOTE:- THE ALB INGRESS CONTROLLER IS NOW THE AWS LOAD BALANCER CONTROLLER) 
+
+1. Run below command to check helm version, IF NOT INSTALL
 ```
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+			
+chmod 700 get_helm.sh
+			
+./get_helm.sh
+
 helm version
 -
 version.BuildInfo{Version:"v3.11.0",
@@ -226,4 +233,62 @@ REVISION: 1
 TEST SUITE: None
 NOTES:
 AWS Load Balancer controller installed!
+```
+
+### 5. AMAZON EFS CSI DYNAMIC PROVISIONING
+
+1. Download the IAM policy document 
+```
+curl -S https://raw.githubusercontent.com/kubernetes-sigs/aws-efs-csi-driver/v1.2.0/docs/iam-policy-example.json -o iam-policy.json
+```
+2. Create an IAM policy 
+```
+aws iam create-policy \ 
+--policy-name EFSCSIControllerIAMPolicy \ 
+--policy-document file://iam-policy.json 
+```
+3. Create a Kubernetes service account 
+```
+eksctl create iamserviceaccount \ 
+--cluster=eks-cube-test \  
+--region=us-east-2 \ 
+--namespace=kube-system \ 
+--name=efs-csi-controller-sa \ 
+--override-existing-serviceaccounts \ 
+--attach-policy-arn=arn:aws:iam::<AWS account ID>:policy/EFSCSIControllerIAMPolicy \ 
+--approve
+```
+4. To verify that the new service role is created, run one of the following commands:
+```
+eksctl get iamserviceaccount --cluster eks-cube-test --name efs-csi-controller-sa --namespace kube-system
+```
+or
+```
+kubectl get serviceaccount --namespace kube-system efs-csi-controller-sa
+```	
+5. Now install AWS EFS Storage Controller driver. 
+```
+helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver
+
+helm repo update
+
+helm upgrade -i aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver \
+--namespace kube-system \
+--set image.repository=602401143452.dkr.ecr.us-west-2.amazonaws.com/eks/aws-efs-csi-driver \
+--set controller.serviceAccount.create=false \
+--set controller.serviceAccount.name=efs-csi-controller-sa
+```		
+6. To verify that aws-efs-csi-driver has started, run:
+```
+kubectl get pod -n kube-system -l "app.kubernetes.io/name=aws-efs-csi-driver,app.kubernetes.io/instance=aws-efs-csi-driver"
+```
+7. To create iamserviceaccount.
+```
+eksctl create iamserviceaccount \
+--cluster=eks-cube-test \
+--namespace=kube-system \
+--name=aws-load-balancer-controller \
+--attach-policy-arn=arn:aws:iam::509002973204:policy/AWSLoadBalancerControllerIAMPolicy \
+--override-existing-serviceaccounts \
+--approve
 ```
