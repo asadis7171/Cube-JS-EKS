@@ -20,7 +20,7 @@ eksctl create iamserviceaccount \
 --cluster=eks-cube-asad \
 --namespace=kube-system \
 --name=aws-load-balancer-controller \
---attach-policy-arn=arn:aws:iam::734620144921:policy/AWSLoadBalancerControllerIAMPolicy \
+--attach-policy-arn=<your-policy-arn> \
 --override-existing-serviceaccounts \
 --approve
 
@@ -49,7 +49,7 @@ helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
 --set clusterName=eks-cube-dev \
 --set serviceAccount.create=false \
 --set region=us-east-1 \
---set vpcId=vpc-05999c44db89646bc \
+--set vpcId=<your-vpc-id> \
 --set serviceAccount.name=aws-load-balancer-controller \
 -n kube-system
 
@@ -71,7 +71,7 @@ aws iam create-policy \
 
 Create a Kubernetes service account
 
- eksctl create iamserviceaccount  --cluster=eks-cube-asad   --region=us-east-1  --namespace=kube-system  --name=efs-csi-controller-sa  --override-existing-serviceaccounts  --attach-policy-arn=arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy  --approve
+ eksctl create iamserviceaccount  --cluster=eks-cube-test   --region=us-east-1  --namespace=kube-system  --name=efs-csi-controller-sa  --override-existing-serviceaccounts  --attach-policy-arn=arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy  --approve
 
 
 verify
