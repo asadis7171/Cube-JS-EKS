@@ -3,345 +3,79 @@ kind: ConfigMap
 metadata:
   name: cube-api-schema
 data:
-  # Here's where you define the schema files
-  Users.js: |
-    cube(`Users`, {
-      sql: `SELECT * FROM public.users`,
-      
-      preAggregations: {
-        // Pre-Aggregations definitions go here
-        // Learn more here: https://cube.dev/docs/caching/pre-aggregations/getting-started  
-      },
-      
-      joins: {
-        
-      },
-      
-      measures: {
-        count: {
-          type: `count`,
-          drillMembers: [id, city, firstName, lastName, createdAt]
-        }
-      },
-      
-      dimensions: {
-        id: {
-          sql: `id`,
-          type: `number`,
-          primaryKey: true
-        },
-        
-        city: {
-          sql: `city`,
-          type: `string`
-        },
-        
-        company: {
-          sql: `company`,
-          type: `string`
-        },
-        
-        gender: {
-          sql: `gender`,
-          type: `string`
-        },
-        
-        firstName: {
-          sql: `first_name`,
-          type: `string`
-        },
-        
-        lastName: {
-          sql: `last_name`,
-          type: `string`
-        },
-        
-        state: {
-          sql: `state`,
-          type: `string`
-        },
-        
-        createdAt: {
-          sql: `created_at`,
-          type: `time`
-        }
-      },
-      
-      dataSource: `default`
-    });
+  cube-api-schema.sql: |
+    CREATE TABLE Department (
+        DeptId integer PRIMARY KEY,
+        DeptName varchar(30) NOT NULL
+    );
 
-  Products.js: |
-    cube(`Products`, {
-      sql: `SELECT * FROM public.products`,
-      
-      preAggregations: {
-        // Pre-Aggregations definitions go here
-        // Learn more here: https://cube.dev/docs/caching/pre-aggregations/getting-started  
-      },
-      
-      joins: {
-        Suppliers: {
-          sql: `${CUBE}.supplier_id = ${Suppliers}.id`,
-          relationship: `belongsTo`
-        },
-        
-        ProductCategories: {
-          sql: `${CUBE}.product_category_id = ${ProductCategories}.id`,
-          relationship: `belongsTo`
-        }
-      },
-      
-      measures: {
-        count: {
-          type: `count`,
-          drillMembers: [id, name, createdAt]
-        }
-      },
-      
-      dimensions: {
-        id: {
-          sql: `id`,
-          type: `number`,
-          primaryKey: true
-        },
-        
-        name: {
-          sql: `name`,
-          type: `string`
-        },
-        
-        description: {
-          sql: `description`,
-          type: `string`
-        },
-        
-        createdAt: {
-          sql: `created_at`,
-          type: `time`
-        }
-      },
-      
-      dataSource: `default`
-    });
+    CREATE TABLE Employee (
+        EmpId integer PRIMARY KEY, 
+        FirstName varchar(20), 
+        LastName varchar(20), 
+        Email varchar(25), 
+        PhoneNo varchar(25), 
+        Salary integer
+    );
 
-  LineItems.js: |
-    cube(`LineItems`, {
-      sql: `SELECT * FROM public.line_items`,
-      
-      preAggregations: {
-        // Pre-Aggregations definitions go here
-        // Learn more here: https://cube.dev/docs/caching/pre-aggregations/getting-started  
-      },
-      
-      joins: {
-        Products: {
-          sql: `${CUBE}.product_id = ${Products}.id`,
-          relationship: `belongsTo`
-        },
-        
-        Orders: {
-          sql: `${CUBE}.order_id = ${Orders}.id`,
-          relationship: `belongsTo`
-        }
-      },
-      
-      measures: {
-        count: {
-          type: `count`,
-          drillMembers: [id, createdAt]
-        },
-        
-        quantity: {
-          sql: `quantity`,
-          type: `sum`
-        },
-        
-        price: {
-          sql: `price`,
-          type: `sum`
-        }
-      },
-      
-      dimensions: {
-        id: {
-          sql: `id`,
-          type: `number`,
-          primaryKey: true
-        },
-        
-        createdAt: {
-          sql: `created_at`,
-          type: `time`
-        }
-      },
-      
-      dataSource: `default`
-    });
+    CREATE TABLE EmployeeDepartment (
+        EmpId integer,
+        DeptId integer,
+        PRIMARY KEY (EmpId, DeptId),
+        FOREIGN KEY (EmpId) REFERENCES Employee(EmpId),
+        FOREIGN KEY (DeptId) REFERENCES Department(DeptId)
+    );
 
-  Suppliers.js: |
-    cube(`Suppliers`, {
-      sql: `SELECT * FROM public.suppliers`,
-      
-      preAggregations: {
-        // Pre-Aggregations definitions go here
-        // Learn more here: https://cube.dev/docs/caching/pre-aggregations/getting-started  
-      },
-      
-      joins: {
-        
-      },
-      
-      measures: {
-        count: {
-          type: `count`,
-          drillMembers: [id, createdAt]
-        }
-      },
-      
-      dimensions: {
-        id: {
-          sql: `id`,
-          type: `number`,
-          primaryKey: true
-        },
-        
-        address: {
-          sql: `address`,
-          type: `string`
-        },
-        
-        email: {
-          sql: `email`,
-          type: `string`
-        },
-        
-        company: {
-          sql: `company`,
-          type: `string`
-        },
-        
-        createdAt: {
-          sql: `created_at`,
-          type: `time`
-        }
-      },
-      
-      dataSource: `default`
-    });
+    INSERT INTO Department (DeptId, DeptName)
+    VALUES 
+        (1, 'Human Resources'),
+        (2, 'Marketing'),
+        (3, 'Finance'),
+        (4, 'Information Technology'),
+        (5, 'Operations');
 
-  ProductCategories.js: |
-    cube(`ProductCategories`, {
-      sql: `SELECT * FROM public.product_categories`,
-      
-      preAggregations: {
-        // Pre-Aggregations definitions go here
-        // Learn more here: https://cube.dev/docs/caching/pre-aggregations/getting-started  
-      },
-      
-      joins: {
-        
-      },
-      
-      measures: {
-        count: {
-          type: `count`,
-          drillMembers: [id, name, createdAt]
-        }
-      },
-      
-      dimensions: {
-        id: {
-          sql: `id`,
-          type: `number`,
-          primaryKey: true
-        },
-        
-        name: {
-          sql: `name`,
-          type: `string`
-        },
-        
-        createdAt: {
-          sql: `created_at`,
-          type: `time`
-        }
-      },
-      
-      dataSource: `default`
-    });
+    INSERT INTO Employee (EmpId, FirstName, LastName, Email, PhoneNo, Salary)
+    VALUES 
+        (1, 'John', 'Doe', 'john.doe@example.com', '555-1234', 50000),
+        (2, 'Jane', 'Smith', 'jane.smith@example.com', '555-5678', 60000),
+        (3, 'Bob', 'Johnson', 'bob.johnson@example.com', '555-9876', 55000),
+        (4, 'Alice', 'Williams', 'alice.williams@example.com', '555-4321', 65000),
+        (5, 'Michael', 'Jones', 'michael.jones@example.com', '555-8765', 70000),
+        (6, 'Emily', 'Brown', 'emily.brown@example.com', '555-2345', 55000),
+        (7, 'David', 'Taylor', 'david.taylor@example.com', '555-7890', 60000),
+        (8, 'Grace', 'Miller', 'grace.miller@example.com', '555-3456', 75000),
+        (9, 'Andrew', 'Anderson', 'andrew.anderson@example.com', '555-6789', 60000),
+        (10, 'Sophia', 'Moore', 'sophia.moore@example.com', '555-2109', 55000),
+        (11, 'Robert', 'Johnson', 'robert.johnson@example.com', '555-5432', 65000),
+        (12, 'Olivia', 'Davis', 'olivia.davis@example.com', '555-8765', 70000),
+        (13, 'James', 'Thomas', 'james.thomas@example.com', '555-4321', 50000),
+        (14, 'Ava', 'White', 'ava.white@example.com', '555-7890', 75000),
+        (15, 'Matthew', 'Moore', 'matthew.moore@example.com', '555-1234', 60000),
+        (16, 'Emma', 'Clark', 'emma.clark@example.com', '555-5678', 55000),
+        (17, 'Daniel', 'Walker', 'daniel.walker@example.com', '555-9876', 65000),
+        (18, 'Sophie', 'Lewis', 'sophie.lewis@example.com', '555-2345', 70000),
+        (19, 'Ryan', 'Parker', 'ryan.parker@example.com', '555-6789', 50000),
+        (20, 'Isabella', 'Hall', 'isabella.hall@example.com', '555-3456', 60000);
 
-  Orders.js: |
-    cube(`Orders`, {
-      sql: `SELECT * FROM public.orders`,
-      preAggregations: {
-        // Pre-Aggregations definitions go here
-        // Learn more here: https://cube.dev/docs/caching/pre-aggregations/getting-started
-
-        main: {
-          measures: [CUBE.count],
-          dimensions: [CUBE.status],
-          timeDimension: CUBE.createdAt,
-          granularity: `day`,
-          partitionGranularity: `month`,
-          refreshKey: {
-            every: `1 minute`,
-            incremental: true,
-            updateWindow: `3 day`,
-          },
-          buildRangeEnd: {
-            sql: `SELECT NOW()`,
-          }
-        },
-
-        second: {
-          measures: [CUBE.count],
-          dimensions: [CUBE.status],
-          timeDimension: CUBE.completedAt,
-          granularity: `day`,
-          partitionGranularity: `month`,
-          refreshKey: {
-            every: `1 minute`,
-          },
-        },
-      },
-      joins: {
-        Users: {
-          sql: `${CUBE}.user_id = ${Users}.id`,
-          relationship: `belongsTo`
-        },
-        Products: {
-          sql: `${CUBE}.product_id = ${Products}.id`,
-          relationship: `belongsTo`
-        }
-      },
-      measures: {
-        count: {
-          type: `count`,
-          drillMembers: [id, createdAt]
-        },
-        number: {
-          sql: `number`,
-          type: `sum`
-        }
-      },
-      dimensions: {
-        id: {
-          sql: `id`,
-          type: `number`,
-          primaryKey: true
-        },
-        status: {
-          sql: `status`,
-          type: `string`
-        },
-        createdAt: {
-          sql: `created_at`,
-          type: `time`
-        },
-        completedAt: {
-          sql: `completed_at`,
-          type: `time`
-        }
-      },
-      dataSource: `default`
-    });
+    INSERT INTO EmployeeDepartment (EmpId, DeptId)
+    VALUES
+        (1, 1),
+        (2, 2),
+        (3, 3),
+        (4, 4),
+        (5, 5),
+        (6, 1),
+        (7, 2),
+        (8, 3),
+        (9, 4),
+        (10, 5),
+        (11, 1),
+        (12, 2),
+        (13, 3),
+        (14, 4),
+        (15, 5),
+        (16, 1),
+        (17, 2),
+        (18, 3),
+        (19, 4),
+        (20, 5);
